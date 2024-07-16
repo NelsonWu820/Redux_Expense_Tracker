@@ -5,12 +5,14 @@ import { TextField, Button } from '@mui/material'
 import { useAppDispatch } from '../app/hooks';
 import { updateDay } from '../app/reducers/daySlice';
 import { updateMonth } from '../app/reducers/monthSlice';
+import { updateYear } from '../app/reducers/yearSlice';
 
 const PriceInput = () => {
 
     //imports date from global state date
     const date = useSelector((state: RootState) => state.date);
     const day = useSelector((state: RootState) => state.daySlice);
+    const month = useSelector((state: RootState) => state.monthSlice);
     const dispatch = useAppDispatch();
 
     //holder states for each field
@@ -31,9 +33,17 @@ const PriceInput = () => {
 
         //old days & new total expense 
         let oldTotal = 0;
-        let newTotal = 0;
+        //calculates new total with the local state, since will add it to day anyways            
+        let newTotal = food + rentMortgage + transport + medical + misc;
         //gets current days past expenses 
         const oldDay = day[currDate];
+
+        //gets just month and year cuase DD/MM/YYYY will get after DD/
+        const currMonth = currDate.substring(3)
+        //gets oldMonths expenses from month global state
+        const oldMonthHolder = month[currMonth];
+        const oldMonthTotal = oldMonthHolder.total;
+        console.log(oldMonthTotal)
 
         //will give an error on first render as oldDay will be set to undefined so just skip it
         if(oldDay !== undefined){
@@ -42,9 +52,6 @@ const PriceInput = () => {
                 oldTotal += val
             });
         }
-
-        //calculates new total with the local state, since will add it to day anyways
-        const newDay = food + rentMortgage + transport + medical + misc
 
         const action = {
             date: currDate,
@@ -60,17 +67,26 @@ const PriceInput = () => {
         //updates month slice
         //subtracts old amount the day addded then adds new amount
         const monthAction = {
-            month: currDate,
+            //get MM/YYYY
+            month: currDate.substring(3),
             oldTotal: oldTotal,
             newTotal: newTotal,
         }
-        console.log(oldTotal, newTotal)
-        //should subtracte the days amount from month
+
+        //updates mothly expense
         dispatch(updateMonth(monthAction))
-        //adds the days
 
-
+        //gets new month after the update
+        const newMonthTotal = month[currMonth]
         //updates year slice
+        const yearAction = {
+            //gets YYYY
+            year: currDate.substring(6),
+            oldMonthTotal: oldMonthTotal,
+            newMonthTotal: newMonthTotal,
+        }
+
+        dispatch(updateYear(yearAction))
 
 
     }
