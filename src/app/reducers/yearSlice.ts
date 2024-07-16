@@ -2,34 +2,38 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 /*  
     ####
-    only months that have totals
     year: {
-        month1: totalNum,
-        month6: totalNum, 
+        total: number,
     }
 */
 interface YearState {
-    value: number;
+    [year: string]: {
+      total: number
+    }
 }
 
 
-const initialYearState: YearState = {
-    value: 0,
-};
+const initialYearState: YearState = {};
   
   const yearSlice = createSlice({
     name: 'year',
     initialState: initialYearState,
     reducers: {
-      add: (state, action: PayloadAction<number>) => {
-        state.value += action.payload;
+      updateYear: (state, action: PayloadAction<{year: string; oldMonthTotal: number; newMonthTotal: number}>) => {
+        const{year, oldMonthTotal, newMonthTotal} = action.payload;
+        //if the state dosen't exits add it
+        if (!state[year]) {
+          state[year] = {
+              total: newMonthTotal
+          };
+        } else {
+          //update otherwise, sub old total then add new total
+          state[year].total -= oldMonthTotal;
+          state[year].total += newMonthTotal;
+        }
       },
-      //sub from total year by the amount changed 
-      sub: (state, action: PayloadAction<number>) => {
-        state.value -= action.payload;
-      }
     },
   });
   
-  export const { add, sub } = yearSlice.actions;
+  export const { updateYear } = yearSlice.actions;
   export default yearSlice.reducer;
