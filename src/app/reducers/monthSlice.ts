@@ -1,6 +1,13 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-
+/*  
+    ##/####
+    only days that have totals
+    month/year: {
+        day1: totalNum,
+        day5: totalNum, 
+    }
+*/
 interface MonthState {
     value: number;
 }
