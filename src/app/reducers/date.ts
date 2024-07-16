@@ -5,13 +5,13 @@ interface DateState {
     value: string;
 }
 
-const initialYearState: DateState = {
+const initialDateState: DateState = {
     value: '',
 };
   
 const dateSlice = createSlice({
     name: 'date',
-    initialState: initialYearState,
+    initialState: initialDateState,
     reducers: {
         setDate: (state, action: PayloadAction<string>) => {
             state.value = action.payload;
