@@ -2,7 +2,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 /*  
     ##/##/####
-    month/day/year: {
+    day/month/year: {
         food: num,
         rent/mortgage: num,
         transport: num,
@@ -27,52 +27,43 @@ const initialState: DayState = {};
     name: 'day',
     initialState,
     reducers: {
-        add: (state, action: PayloadAction<{ date: string; category: string; amount: number }>) => {
-        const { date, category, amount } = action.payload;
+        updateDay: (state, 
+            action: PayloadAction<{ date: string; food: number; rentMortgage: number; 
+            transport: number; medical: number; misc: number}>) => {
+            const { date, food, rentMortgage, transport, medical, misc } = action.payload;
             //if the state dosen't exits add it
             if (!state[date]) {
                 state[date] = {
-                    food: 0,
-                    rentMortgage: 0,
-                    transport: 0,
-                    medical: 0,
-                    misc: 0,
+                    food: food,
+                    rentMortgage: rentMortgage,
+                    transport: transport,
+                    medical: medical,
+                    misc: misc,
                 };
             }
             
-            //
-            switch (category) {
-            case 'food':
-                //needs to be set back to 0 so it dosen't add ontop of old val
-                state[date].food = 0;
-                state[date].food += amount;
-                break;
-            case 'rentMortgage':
-                state[date].rentMortgage = 0;
-                state[date].rentMortgage += amount;
-                break;
-            case 'transport':
-                state[date].transport = 0;
-                state[date].transport += amount;
-                break;
-            case 'medical':
-                state[date].medical = 0;
-                state[date].medical += amount;
-                break;
-            case 'misc':
-                state[date].misc = 0;
-                state[date].misc += amount;
-                break;
-            default:
-                break;
-            }
+            //sets it back to 0 then adds new amount
+            state[date].food = 0;
+            state[date].food += food;
+            
+
+            state[date].rentMortgage = 0;
+            state[date].rentMortgage += rentMortgage;
+            
+
+            state[date].transport = 0;
+            state[date].transport += transport;
+            
+
+            state[date].medical = 0;
+            state[date].medical += medical;
+            
+
+            state[date].misc = 0;
+            state[date].misc += misc;   
         },
-      //sub from total year by the amount changed 
-      /*sub: (state, action) => {
-        state.value -= action.payload;
-      }*/
     },
   });
   
-  export const { add } = daySlice.actions;
+  export const { updateDay } = daySlice.actions;
   export default daySlice.reducer;
