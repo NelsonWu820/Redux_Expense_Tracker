@@ -1,8 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import yearSlice from "./reducers/yearSlice";
+import rootReducer from "./reducers/combineReducers";
 
 const store = configureStore({
-  reducer: yearSlice
+  reducer: rootReducer
 })
 
 export type RootState = ReturnType<typeof store.getState>;
