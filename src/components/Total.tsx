@@ -124,6 +124,7 @@ const Total = () => {
           ))}
         </TableBody>
         <TableFooter>
+          <TableRow>
               <TableCell component="th" scope="row">
                 Total:
               </TableCell>
@@ -132,6 +133,7 @@ const Total = () => {
               <TableCell align="right">{transportTotal}</TableCell>
               <TableCell align="right">{medicalTotal}</TableCell>
               <TableCell align="right">{miscTotal}</TableCell>
+          </TableRow>
         </TableFooter>
       </Table>
     </TableContainer>
