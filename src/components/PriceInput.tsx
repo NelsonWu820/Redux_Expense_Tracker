@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
 import { RootState } from '../app/store';
 import { TextField, Button } from '@mui/material'
 import { useAppDispatch } from '../app/hooks';
-import { updateDay } from '../app/reducers/daySlice';
-import { updateMonth } from '../app/reducers/monthSlice';
+import  { updateDay } from '../app/reducers/daySlice';
+import { updateMonth, updateMonthExpense } from '../app/reducers/monthSlice';
 import { updateYear } from '../app/reducers/yearSlice';
 
 const PriceInput = () => {
@@ -22,6 +22,42 @@ const PriceInput = () => {
     const [medical, setMedical] = useState(0);
     const [misc, setMisc] = useState(0);
 
+    interface Expense {
+        food: number;
+        rentMortgage: number;
+        transport: number;
+        medical: number;
+        misc: number;
+      }
+      
+    let oldDay: Expense = {
+        food: 0,
+        rentMortgage: 0,
+        transport: 0,
+        medical: 0,
+        misc: 0,
+    };
+
+    //changes the val held inside the text field when about date is changed
+    useEffect(() => {
+        const currDate = date.value;
+        //checks if it's not the inital '' when first loaded & if the date is inside the state
+        if(currDate && day[currDate]){
+            const dayExpense = day[currDate];
+            setFood(dayExpense.food || 0)
+            setRentMortgage(dayExpense.rentMortgage || 0)
+            setTransport(dayExpense.transport || 0)
+            setMedical(dayExpense.medical || 0)
+            setMisc(dayExpense.misc || 0)
+        } else {
+            setFood(0)
+            setRentMortgage(0)
+            setTransport(0)
+            setMedical(0)
+            setMisc(0)
+        }
+    }, [date]);
+
 
     //the function to update all global states
     const submitNewValues = () => {
@@ -36,22 +72,61 @@ const PriceInput = () => {
         //calculates new total with the local state, since will add it to day anyways            
         let newTotal = food + rentMortgage + transport + medical + misc;
         //gets current days past expenses 
-        const oldDay = day[currDate];
+        oldDay = day[currDate];
 
         //gets just month and year cuase DD/MM/YYYY will get after DD/
         const currMonth = currDate.substring(3)
-        //gets oldMonths expenses from month global state
+
         const oldMonthHolder = month[currMonth];
-        const oldMonthTotal = oldMonthHolder.total;
-        console.log(oldMonthTotal)
+        let oldMonthTotal = 0;
+        //for inital start up when there is no previous month
+        if(oldMonthHolder !== undefined){
+            //gets oldMonths expenses from month global state
+            oldMonthTotal = oldMonthHolder["total"];
+        }
+
+        //gets old specific day expenses
+        let oldFood = 0;
+        let oldRentMortgage = 0;
+        let oldTransport = 0;
+        let oldMedical = 0;
+        let oldMisc = 0;
 
         //will give an error on first render as oldDay will be set to undefined so just skip it
         if(oldDay !== undefined){
             //gets old day total val by looping through all the values in the oldDay object 
-            Object.values(oldDay).forEach(val => {
-                oldTotal += val
+            Object.keys(oldDay).forEach((key) => {
+                const expenseKey = key as keyof Expense
+                oldTotal += oldDay[expenseKey];
+                //will only input the value of
+                switch(key){
+                    case "food":
+                        oldFood = oldDay[expenseKey];
+                        break;
+                        case "rentMortgage":
+                        oldRentMortgage = oldDay[expenseKey];
+                        break;
+                    case "transport":
+                        oldTransport = oldDay[expenseKey];
+                        break;
+                    case "medical":
+                        oldMedical = oldDay[expenseKey];
+                        break;
+                    case "misc":
+                        oldMisc = oldDay[expenseKey];
+                        break;
+                    default:
+                        break;
+                }
             });
         }
+        
+        //get new month total by doing the same logic I put into the month action
+        //just old month total - old day total + new day total, since trying to get the new updated
+        //month state after updateMonth action will just get old month total instead because 
+        //the reducer work async and won't be updated in time
+        const newMonthTotal = oldMonthTotal - oldTotal + newTotal
+        
 
         const action = {
             date: currDate,
@@ -64,6 +139,8 @@ const PriceInput = () => {
         //updates day slice, no need for sub because it replaces that day in global state
         dispatch(updateDay(action))
 
+
+
         //updates month slice
         //subtracts old amount the day addded then adds new amount
         const monthAction = {
@@ -75,9 +152,27 @@ const PriceInput = () => {
 
         //updates mothly expense
         dispatch(updateMonth(monthAction))
+        //updates the specific monthly expense totals
 
-        //gets new month after the update
-        const newMonthTotal = month[currMonth]
+        const specificMonthAction = {
+            month: currDate.substring(3),
+            oldFood: oldFood,
+            newFood: food,
+            oldRentMortgage: oldRentMortgage,
+            newRentMortgage: rentMortgage,
+            oldTransport: oldTransport,
+            newTransport: transport,
+            oldMedical: oldMedical,
+            newMedical: medical,
+            oldMisc: oldMisc,
+            newMisc: misc,
+        }
+
+        dispatch(updateMonthExpense(specificMonthAction))
+
+
+
+        //
         //updates year slice
         const yearAction = {
             //gets YYYY
@@ -93,15 +188,44 @@ const PriceInput = () => {
 
     return (
         <div>
-            Food:
-            <TextField id="outlined-basic Food" label="Food" variant="outlined"
-            onChange={(e) => setFood(parseFloat(e.target.value))}/>
+            <div>
+                Food:
+                <TextField id="outlined-basic Food" label="Food" variant="outlined"
+                value={food}
+                onChange={(e) => setFood(parseFloat(e.target.value) || 0 || 0)}/>
+            </div>
 
-            Rent/Mortgage:
-            <TextField id="outlined-basic rentMortgage" label="rentMortgage" variant="outlined"
-            onChange={(e) => setRentMortgage(parseFloat(e.target.value))}/>
+            <div>
+                Rent/Mortgage:
+                <TextField id="outlined-basic rentMortgage" label="rentMortgage" variant="outlined" 
+                value={rentMortgage}
+                onChange={(e) => setRentMortgage(parseFloat(e.target.value) || 0)}/>
+            </div>
 
-            <Button variant="contained" onClick={submitNewValues}>Submit All</Button>
+            <div>
+                Transport:
+                <TextField id="outlined-basic rentMortgage" label="Transport" variant="outlined"
+                value={transport}
+                onChange={(e) => setTransport(parseFloat(e.target.value) || 0)}/>
+            </div>
+
+            <div>
+                Medical:
+                <TextField id="outlined-basic rentMortgage" label="Medical" variant="outlined"
+                value={medical}
+                onChange={(e) => setMedical(parseFloat(e.target.value) || 0)}/>
+            </div>
+
+            <div>
+                Misc:
+                <TextField id="outlined-basic rentMortgage" label="Misc" variant="outlined"
+                value={misc}
+                onChange={(e) => setMisc(parseFloat(e.target.value) || 0)}/>
+            </div>
+
+            <div>
+                <Button variant="contained" onClick={submitNewValues}>Submit All</Button>
+            </div>
         </div>
     )
 }
