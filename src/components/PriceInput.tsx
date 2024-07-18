@@ -16,11 +16,11 @@ const PriceInput = () => {
     const dispatch = useAppDispatch();
 
     //holder states for each field
-    const [food, setFood] = useState(0);
-    const [rentMortgage, setRentMortgage] = useState(0);
-    const [transport, setTransport] = useState(0);
-    const [medical, setMedical] = useState(0);
-    const [misc, setMisc] = useState(0);
+    const [food, setFood] = useState(0.00);
+    const [rentMortgage, setRentMortgage] = useState(0.00);
+    const [transport, setTransport] = useState(0.00);
+    const [medical, setMedical] = useState(0.00);
+    const [misc, setMisc] = useState(0.00);
 
     interface Expense {
         food: number;
@@ -31,11 +31,11 @@ const PriceInput = () => {
       }
       
     let oldDay: Expense = {
-        food: 0,
-        rentMortgage: 0,
-        transport: 0,
-        medical: 0,
-        misc: 0,
+        food: 0.00,
+        rentMortgage: 0.00,
+        transport: 0.00,
+        medical: 0.00,
+        misc: 0.00,
     };
 
     //changes the val held inside the text field when about date is changed
@@ -71,6 +71,9 @@ const PriceInput = () => {
         let oldTotal = 0;
         //calculates new total with the local state, since will add it to day anyways            
         let newTotal = food + rentMortgage + transport + medical + misc
+        //turns a float that can have more then 2 decimal points, into just 2 decimal points
+        //always rounds down basuce it just gets rid of everything past the 2nd decimal point
+        newTotal = parseFloat(newTotal.toFixed(2));
         //gets current days past expenses 
         oldDay = day[currDate];
 
@@ -86,11 +89,11 @@ const PriceInput = () => {
         }
 
         //gets old specific day expenses
-        let oldFood = 0;
-        let oldRentMortgage = 0;
-        let oldTransport = 0;
-        let oldMedical = 0;
-        let oldMisc = 0;
+        let oldFood = 0.00;
+        let oldRentMortgage = 0.00;
+        let oldTransport = 0.00;
+        let oldMedical = 0.00;
+        let oldMisc = 0.00;
 
         //will give an error on first render as oldDay will be set to undefined so just skip it
         if(oldDay !== undefined){
@@ -186,47 +189,119 @@ const PriceInput = () => {
 
     }
 
+    const handleChange = (setter: React.Dispatch<React.SetStateAction<number>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
+            if (regex.test(value) || value === '') {
+              // Convert value to a float and update state
+              setMedical(parseFloat(value) || 0.00);
+            }
+
+        const value = parseFloat(e.target.value);
+        if (!isNaN(value)) {
+            console.log(value.toFixed(2))
+            
+        }
+    };
+
     return (
         <div>
             <div>
                 Food:
-                <TextField id="outlined-basic Food" label="Food" variant="outlined"
-                margin="dense"
-                type='number'
-                //check if over 2 digits && if the last value is not 0 for when $#.#0 because then it will get locked
-                //into the toFixed #.## getting really hard to edit
-                value={0 !== (food * 100) % 10 && food.toFixed(2)[food.toFixed(2).length - 1] === "0"? food.toFixed(2)
-                    : food > 0 ? food
-                    : ""}
-                onChange={(e) => setFood(parseFloat(parseFloat((e.target.value)).toFixed(2)) || 0.00)}/> 
+                <TextField id="food" label="Food" variant="outlined"
+                    margin="dense"
+                    type='number'
+                    value={food}
+                    onChange={handleChange(setFood)}
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">$</InputAdornment>
+                    }}
+                    inputProps={{ step: 0.01 }}
+                />
             </div>
 
             <div>
                 Rent/Mortgage:
                 <TextField id="outlined-basic rentMortgage" label="rentMortgage" variant="outlined" 
+                margin="dense"
+                type='number'
+                
+                //check if over 2 digits && if the last value is not 0 for when $#.#0 because then it will get locked
+                //into the toFixed #.## getting really hard to edit
                 value={rentMortgage}
-                onChange={(e) => setRentMortgage(parseFloat(e.target.value) || 0)}/>
+                //turns str input into number then str again cause of .toFloat needs number then back into num for set
+                onChange={(e) => setRentMortgage(parseFloat((e.target.value)))}
+                InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        $
+                      </InputAdornment>
+                    ),
+                  }}
+                inputProps={{
+                    step: 0.01,
+                }}
+                />
             </div>
 
             <div>
                 Transport:
                 <TextField id="outlined-basic rentMortgage" label="Transport" variant="outlined"
-                value={transport}
-                onChange={(e) => setTransport(parseFloat(e.target.value) || 0)}/>
+                margin="dense"
+                type='number'
+                inputProps={{
+                    maxLength: 13,
+                    step: "0.01"
+                }}
+                //check if over 2 digits && if the last value is not 0 for when $#.#0 because then it will get locked
+                //into the toFixed #.## getting really hard to edit
+                value={transport
+                }
+                //turns str input into number then str again cause of .toFloat needs number then back into num for set
+                onChange={(e) => {
+                    setTransport(parseFloat(e.target.value))
+                }}
+                InputProps={{
+                    startAdornment:
+                    <div>$</div>
+                    }}
+                />
             </div>
 
             <div>
                 Medical:
                 <TextField id="outlined-basic rentMortgage" label="Medical" variant="outlined"
-                value={medical}
-                onChange={(e) => setMedical(parseFloat(e.target.value) || 0)}/>
+                margin="dense"
+                type='number'
+                //check if over 2 digits && if the last value is not 0 for when $#.#0 because then it will get locked
+                //into the toFixed #.## getting really hard to edit
+                value={0 !== (medical * 100) % 10 && medical.toFixed(2)[medical.toFixed(2).length - 1] === "0"? medical.toFixed(2)
+                    : medical > 0 ? medical
+                    : ""}
+                //turns str input into number then str again cause of .toFloat needs number then back into num for set
+                onChange={(e) => setMedical(parseFloat(parseFloat((e.target.value)).toFixed(2)) || 0.00)}
+                InputProps={{
+                    startAdornment:
+                    <div>$</div>
+                    }}
+                />
             </div>
 
             <div>
                 Misc:
                 <TextField id="outlined-basic rentMortgage" label="Misc" variant="outlined"
-                value={misc}
-                onChange={(e) => setMisc(parseFloat(e.target.value) || 0)}/>
+                margin="dense"
+                type='number'
+                //check if over 2 digits && if the last value is not 0 for when $#.#0 because then it will get locked
+                //into the toFixed #.## getting really hard to edit
+                value={0 !== (misc * 100) % 10 && misc.toFixed(2)[misc.toFixed(2).length - 1] === "0"? misc.toFixed(2)
+                    : misc > 0 ? misc
+                    : ""}
+                //turns str input into number then str again cause of .toFloat needs number then back into num for set
+                onChange={(e) => setMisc(parseFloat(parseFloat((e.target.value)).toFixed(2)) || 0.00)}
+                InputProps={{
+                    startAdornment:
+                    <div>$</div>
+                    }}
+                />
             </div>
 
             <div>
