@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
 import { RootState } from '../app/store';
-import { TextField, Button } from '@mui/material'
+import { TextField, Button, InputAdornment } from '@mui/material'
 import { useAppDispatch } from '../app/hooks';
 import  { updateDay } from '../app/reducers/daySlice';
 import { updateMonth, updateMonthExpense } from '../app/reducers/monthSlice';
@@ -44,17 +44,17 @@ const PriceInput = () => {
         //checks if it's not the inital '' when first loaded & if the date is inside the state
         if(currDate && day[currDate]){
             const dayExpense = day[currDate];
-            setFood(dayExpense.food || 0)
-            setRentMortgage(dayExpense.rentMortgage || 0)
-            setTransport(dayExpense.transport || 0)
-            setMedical(dayExpense.medical || 0)
-            setMisc(dayExpense.misc || 0)
+            setFood(dayExpense.food || 0.00)
+            setRentMortgage(dayExpense.rentMortgage || 0.00)
+            setTransport(dayExpense.transport || 0.00)
+            setMedical(dayExpense.medical || 0.00)
+            setMisc(dayExpense.misc || 0.00)
         } else {
-            setFood(0)
-            setRentMortgage(0)
-            setTransport(0)
-            setMedical(0)
-            setMisc(0)
+            setFood(0.00)
+            setRentMortgage(0.00)
+            setTransport(0.00)
+            setMedical(0.00)
+            setMisc(0.00)
         }
     }, [date]);
 
@@ -70,7 +70,7 @@ const PriceInput = () => {
         //old days & new total expense 
         let oldTotal = 0;
         //calculates new total with the local state, since will add it to day anyways            
-        let newTotal = food + rentMortgage + transport + medical + misc;
+        let newTotal = food + rentMortgage + transport + medical + misc
         //gets current days past expenses 
         oldDay = day[currDate];
 
@@ -191,8 +191,14 @@ const PriceInput = () => {
             <div>
                 Food:
                 <TextField id="outlined-basic Food" label="Food" variant="outlined"
-                value={food}
-                onChange={(e) => setFood(parseFloat(e.target.value) || 0 || 0)}/>
+                margin="dense"
+                type='number'
+                //check if over 2 digits && if the last value is not 0 for when $#.#0 because then it will get locked
+                //into the toFixed #.## getting really hard to edit
+                value={0 !== (food * 100) % 10 && food.toFixed(2)[food.toFixed(2).length - 1] === "0"? food.toFixed(2)
+                    : food > 0 ? food
+                    : ""}
+                onChange={(e) => setFood(parseFloat(parseFloat((e.target.value)).toFixed(2)) || 0.00)}/> 
             </div>
 
             <div>
