@@ -115,11 +115,11 @@ const Total = () => {
               <TableCell component="th" scope="row">
                 {row.name}
               </TableCell>
-              <TableCell align="right">{row.food}</TableCell>
-              <TableCell align="right">{row.rentMortgage}</TableCell>
-              <TableCell align="right">{row.transport}</TableCell>
-              <TableCell align="right">{row.medical}</TableCell>
-              <TableCell align="right">{row.misc}</TableCell>
+              <TableCell align="right">${row.food}</TableCell>
+              <TableCell align="right">${row.rentMortgage}</TableCell>
+              <TableCell align="right">${row.transport}</TableCell>
+              <TableCell align="right">${row.medical}</TableCell>
+              <TableCell align="right">${row.misc}</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -128,11 +128,11 @@ const Total = () => {
               <TableCell component="th" scope="row">
                 Total:
               </TableCell>
-              <TableCell align="right">{foodTotal}</TableCell>
-              <TableCell align="right">{rentMortgageTotal}</TableCell>
-              <TableCell align="right">{transportTotal}</TableCell>
-              <TableCell align="right">{medicalTotal}</TableCell>
-              <TableCell align="right">{miscTotal}</TableCell>
+              <TableCell align="right">${foodTotal}</TableCell>
+              <TableCell align="right">${rentMortgageTotal}</TableCell>
+              <TableCell align="right">${transportTotal}</TableCell>
+              <TableCell align="right">${medicalTotal}</TableCell>
+              <TableCell align="right">${miscTotal}</TableCell>
           </TableRow>
         </TableFooter>
       </Table>
