@@ -17,8 +17,9 @@ const createData = (
   transport: number,
   medical: number,
   misc: number,
+  total: number,
 ) => {
-  return { name, food, rentMortgage, transport, medical, misc};
+  return { name, food, rentMortgage, transport, medical, misc, total};
 }
 
 //turns MM-YYYY string into the actual month
@@ -49,6 +50,7 @@ const Total = () => {
   const [transportTotal, setTransportTotal] = useState(0);
   const [medicalTotal, setMedicalTotal] = useState(0);
   const [miscTotal, setMiscTotal] = useState(0);
+  const [total, setTotal] = useState(0);
 
   
   const date = useSelector((state: RootState) => state.date)
@@ -58,9 +60,9 @@ const Total = () => {
   const rows = Object.keys(month).map((key) => {
     //get year and checks if year matchs
     if(key.substring(3) === currYear){
-      const { food, rentMortgage, transport, medical, misc } = month[key]
+      const { food, rentMortgage, transport, medical, misc, total } = month[key]
       //creates a row in the table
-      return createData(toMonth(key), food, rentMortgage, transport, medical, misc)
+      return createData(toMonth(key), food, rentMortgage, transport, medical, misc, total)
       
     }
     //if not part of current year
@@ -84,13 +86,14 @@ const Total = () => {
       holder.medical += row.medical;
       holder.misc += row.misc;
       return holder;
-    }, { food: 0, rentMortgage: 0, transport: 0, medical: 0, misc: 0 });
+    }, { food: 0, rentMortgage: 0, transport: 0, medical: 0, misc: 0, total: 0 });
 
     setFoodTotal(totals.food);
     setRentMortgageTotal(totals.rentMortgage);
     setTransportTotal(totals.transport);
     setMedicalTotal(totals.medical);
     setMiscTotal(totals.misc);
+    setMiscTotal(totals.total);
   }, [rows]);
 
   return (
@@ -104,6 +107,7 @@ const Total = () => {
             <TableCell align="right">Transport</TableCell>
             <TableCell align="right">Medical</TableCell>
             <TableCell align="right">Misc</TableCell>
+            <TableCell align="right">Total</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -120,6 +124,7 @@ const Total = () => {
               <TableCell align="right">${row.transport}</TableCell>
               <TableCell align="right">${row.medical}</TableCell>
               <TableCell align="right">${row.misc}</TableCell>
+              <TableCell align="right">${row.total}</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -133,6 +138,7 @@ const Total = () => {
               <TableCell align="right">${transportTotal}</TableCell>
               <TableCell align="right">${medicalTotal}</TableCell>
               <TableCell align="right">${miscTotal}</TableCell>
+              <TableCell align="right">${total}</TableCell>
           </TableRow>
         </TableFooter>
       </Table>
