@@ -1,7 +1,7 @@
 # Expense Tracker
 
 # Description
-A simple expense tracker for every day, that will calculate the amount spent for per month & per year.
+A simple expense tracker that takes a dollar amount for 5 categories of daily spending, food, rent/mortgage, transport, medical, and misc is stored in the global state using Redux slices. Then it will be added to a total monthly tracker that will keep track of the total spent on each category for each month in the year the user has added, with each month being a part of a different year.
 
 ### Built With
 
