@@ -41,6 +41,8 @@ const initialMonthState: MonthState = {};
           //update otherwise, sub old total then add new total
           state[month].total -= oldTotal;
           state[month].total += newTotal;
+          //takes off anything beyond 2 decimal points
+          state[month].total = parseFloat((state[month].total).toFixed(2));
         }
 
       },
