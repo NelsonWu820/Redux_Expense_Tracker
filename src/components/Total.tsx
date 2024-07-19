@@ -85,6 +85,7 @@ const Total = () => {
       holder.transport += row.transport;
       holder.medical += row.medical;
       holder.misc += row.misc;
+      holder.total += row.total;
       return holder;
     }, { food: 0, rentMortgage: 0, transport: 0, medical: 0, misc: 0, total: 0 });
 
@@ -93,7 +94,7 @@ const Total = () => {
     setTransportTotal(totals.transport);
     setMedicalTotal(totals.medical);
     setMiscTotal(totals.misc);
-    setMiscTotal(totals.total);
+    setTotal(totals.total);
   }, [rows]);
 
   return (
