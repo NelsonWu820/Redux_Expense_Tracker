@@ -69,11 +69,11 @@ const PriceInput = () => {
 
         //old days & new total expense 
         let oldTotal = 0;
-        //calculates new total with the local state, since will add it to day anyways            
-        let newTotal = food + rentMortgage + transport + medical + misc
+        //calculates new total with the local state, since will add it to day anyways           
+        //also cuts off anything beyond 2 decimal points then turns it back into float because toFixed turns it into a string 
+        let newTotal = parseFloat((food + rentMortgage + transport + medical + misc).toFixed(2));
         //turns a float that can have more then 2 decimal points, into just 2 decimal points
         //always rounds down basuce it just gets rid of everything past the 2nd decimal point
-        newTotal = parseFloat(newTotal.toFixed(2));
         //gets current days past expenses 
         oldDay = day[currDate];
 
@@ -128,7 +128,8 @@ const PriceInput = () => {
         //just old month total - old day total + new day total, since trying to get the new updated
         //month state after updateMonth action will just get old month total instead because 
         //the reducer work async and won't be updated in time
-        const newMonthTotal = oldMonthTotal - oldTotal + newTotal
+        //also cut off abything beyond 2 decimal points and then turn back into number
+        const newMonthTotal = parseFloat((oldMonthTotal - oldTotal + newTotal).toFixed(2));
         
 
         const action = {
@@ -189,16 +190,20 @@ const PriceInput = () => {
 
     }
 
-    const handleChange = (setter: React.Dispatch<React.SetStateAction<number>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
-            if (regex.test(value) || value === '') {
-              // Convert value to a float and update state
-              setMedical(parseFloat(value) || 0.00);
-            }
+    //the rege for if there is only 2 decimal points
+    const regex = /^\d+(\.\d{0,2})?$/;    
+    const decimalChecker = (setter: React.Dispatch<React.SetStateAction<number>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
 
-        const value = parseFloat(e.target.value);
-        if (!isNaN(value)) {
-            console.log(value.toFixed(2))
-            
+        //check if the value is empty or matches the regex
+        if (value === '' || regex.test(value)) {
+            //convert value to a float and turn into two decimal places
+            const formattedValue = parseFloat(value);
+            //checks if NaN which can happen if user backspaces on an empty input field
+            //and if number is to big since it will cause overflows in my code and create a lot of bugs
+            if (!isNaN(formattedValue) && formattedValue.toString().length <= 15) {
+                setter(parseFloat(formattedValue.toFixed(2)));
+            }
         }
     };
 
@@ -209,8 +214,9 @@ const PriceInput = () => {
                 <TextField id="food" label="Food" variant="outlined"
                     margin="dense"
                     type='number'
-                    value={food}
-                    onChange={handleChange(setFood)}
+                    value={food || ""}
+                    //gives to decimalChecker with the setMethod for this input field
+                    onChange={decimalChecker(setFood)}
                     InputProps={{
                         startAdornment: <InputAdornment position="start">$</InputAdornment>
                     }}
@@ -223,12 +229,9 @@ const PriceInput = () => {
                 <TextField id="outlined-basic rentMortgage" label="rentMortgage" variant="outlined" 
                 margin="dense"
                 type='number'
-                
-                //check if over 2 digits && if the last value is not 0 for when $#.#0 because then it will get locked
-                //into the toFixed #.## getting really hard to edit
-                value={rentMortgage}
-                //turns str input into number then str again cause of .toFloat needs number then back into num for set
-                onChange={(e) => setRentMortgage(parseFloat((e.target.value)))}
+                value={rentMortgage || ""}
+                //gives to decimalChecker with the setMethod for this input field
+                onChange={decimalChecker(setRentMortgage)}
                 InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -251,14 +254,9 @@ const PriceInput = () => {
                     maxLength: 13,
                     step: "0.01"
                 }}
-                //check if over 2 digits && if the last value is not 0 for when $#.#0 because then it will get locked
-                //into the toFixed #.## getting really hard to edit
-                value={transport
-                }
-                //turns str input into number then str again cause of .toFloat needs number then back into num for set
-                onChange={(e) => {
-                    setTransport(parseFloat(e.target.value))
-                }}
+                value={transport || ""}
+                //gives to decimalChecker with the setMethod for this input field
+                onChange={decimalChecker(setTransport)}
                 InputProps={{
                     startAdornment:
                     <div>$</div>
@@ -271,13 +269,9 @@ const PriceInput = () => {
                 <TextField id="outlined-basic rentMortgage" label="Medical" variant="outlined"
                 margin="dense"
                 type='number'
-                //check if over 2 digits && if the last value is not 0 for when $#.#0 because then it will get locked
-                //into the toFixed #.## getting really hard to edit
-                value={0 !== (medical * 100) % 10 && medical.toFixed(2)[medical.toFixed(2).length - 1] === "0"? medical.toFixed(2)
-                    : medical > 0 ? medical
-                    : ""}
-                //turns str input into number then str again cause of .toFloat needs number then back into num for set
-                onChange={(e) => setMedical(parseFloat(parseFloat((e.target.value)).toFixed(2)) || 0.00)}
+                value={medical || ""}
+                //gives to decimalChecker with the setMethod for this input field
+                onChange={decimalChecker(setMedical)}
                 InputProps={{
                     startAdornment:
                     <div>$</div>
@@ -290,13 +284,9 @@ const PriceInput = () => {
                 <TextField id="outlined-basic rentMortgage" label="Misc" variant="outlined"
                 margin="dense"
                 type='number'
-                //check if over 2 digits && if the last value is not 0 for when $#.#0 because then it will get locked
-                //into the toFixed #.## getting really hard to edit
-                value={0 !== (misc * 100) % 10 && misc.toFixed(2)[misc.toFixed(2).length - 1] === "0"? misc.toFixed(2)
-                    : misc > 0 ? misc
-                    : ""}
-                //turns str input into number then str again cause of .toFloat needs number then back into num for set
-                onChange={(e) => setMisc(parseFloat(parseFloat((e.target.value)).toFixed(2)) || 0.00)}
+                value={misc || ""}
+                //gives to decimalChecker with the setMethod for this input field
+                onChange={decimalChecker(setMisc)}
                 InputProps={{
                     startAdornment:
                     <div>$</div>
